@@ -1,69 +1,80 @@
-// app/property/[slug]/page.tsx
-import React from "react";
+"use client";
 
-interface Review {
+import { useState } from "react";
+
+type Review = {
   id: number;
-  guestName: string;
-  publicReview: string;
-  rating: number;
-  listingName: string;
-  channel: string;
-  submittedAt: string;
-}
+  name: string;
+  comment: string;
+};
 
-export default async function PropertyPage({
-  params,
-}: {
-  params: { slug: string };
-}) {
-  const slug = params.slug;
+export default function Page() {
+  const [reviews, setReviews] = useState<Review[]>([
+    { id: 1, name: "Rowan", comment: "Great place to stay!" },
+    { id: 2, name: "Nadine", comment: "Very clean and comfortable." },
+  ]);
 
-  let reviews: Review[] = [];
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/reviews/approved?slug=${slug}`,
-      { cache: "no-store" }
-    );
-    const data = await res.json();
-    reviews = data.result || [];
-  } catch (error) {
-    console.error("Error fetching reviews:", error);
-  }
+  const [name, setName] = useState("");
+  const [comment, setComment] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim() || !comment.trim()) return;
+
+    const newReview: Review = {
+      id: reviews.length + 1,
+      name,
+      comment,
+    };
+
+    setReviews([...reviews, newReview]);
+    setName("");
+    setComment("");
+  };
 
   return (
-    <div className="max-w-5xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">
-        {slug.replace("-", " ").toUpperCase()}
-      </h1>
+    <div className="min-h-screen flex flex-col items-center justify-start p-8 bg-gray-50">
+      <h1 className="text-2xl font-bold mb-6">Flex Living Reviews</h1>
 
-      {reviews.length === 0 ? (
-        <p className="text-gray-500">No approved reviews yet.</p>
-      ) : (
-        <table className="min-w-full border border-gray-200">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="p-2 border text-left">Guest</th>
-              <th className="p-2 border text-left">Rating</th>
-              <th className="p-2 border text-left">Channel</th>
-              <th className="p-2 border text-left">Review</th>
-              <th className="p-2 border text-left">Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            {reviews.map((review) => (
-              <tr key={review.id} className="even:bg-gray-50">
-                <td className="p-2 border">{review.guestName}</td>
-                <td className="p-2 border">{review.rating}</td>
-                <td className="p-2 border">{review.channel}</td>
-                <td className="p-2 border">{review.publicReview}</td>
-                <td className="p-2 border">
-                  {new Date(review.submittedAt).toLocaleDateString()}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+      {/* Form */}
+      <form
+        onSubmit={handleSubmit}
+        className="w-full max-w-md bg-white p-4 rounded-2xl shadow mb-8"
+      >
+        <input
+          type="text"
+          placeholder="Your name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="w-full border p-2 rounded mb-3"
+        />
+        <textarea
+          placeholder="Write your review..."
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          className="w-full border p-2 rounded mb-3"
+          rows={3}
+        />
+        <button
+          type="submit"
+          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+        >
+          Submit
+        </button>
+      </form>
+
+      {/* Reviews List */}
+      <div className="w-full max-w-md">
+        {reviews.map((review) => (
+          <div
+            key={review.id}
+            className="bg-white p-4 rounded-2xl shadow mb-3"
+          >
+            <p className="font-semibold">{review.name}</p>
+            <p className="text-gray-700">{review.comment}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
