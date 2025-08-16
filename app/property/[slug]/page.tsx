@@ -11,14 +11,19 @@ interface Review {
   submittedAt: string;
 }
 
-export default async function PropertyPage({ params }: { params: { slug: string } }) {
+export default async function PropertyPage({
+  params,
+}: {
+  params: { slug: string };
+}) {
   const slug = params.slug;
 
   let reviews: Review[] = [];
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/reviews/approved?slug=${slug}`, {
-      cache: "no-store",
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/reviews/approved?slug=${slug}`,
+      { cache: "no-store" }
+    );
     const data = await res.json();
     reviews = data.result || [];
   } catch (error) {
@@ -27,7 +32,9 @@ export default async function PropertyPage({ params }: { params: { slug: string 
 
   return (
     <div className="max-w-5xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">{slug.replace("-", " ").toUpperCase()}</h1>
+      <h1 className="text-2xl font-bold mb-4">
+        {slug.replace("-", " ").toUpperCase()}
+      </h1>
 
       {reviews.length === 0 ? (
         <p className="text-gray-500">No approved reviews yet.</p>
@@ -49,7 +56,9 @@ export default async function PropertyPage({ params }: { params: { slug: string 
                 <td className="p-2 border">{review.rating}</td>
                 <td className="p-2 border">{review.channel}</td>
                 <td className="p-2 border">{review.publicReview}</td>
-                <td className="p-2 border">{new Date(review.submittedAt).toLocaleDateString()}</td>
+                <td className="p-2 border">
+                  {new Date(review.submittedAt).toLocaleDateString()}
+                </td>
               </tr>
             ))}
           </tbody>
