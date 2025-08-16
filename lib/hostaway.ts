@@ -45,3 +45,12 @@ function calculateAverageRating(categories: ReviewCategory[]): number {
   const total = categories.reduce((sum, c) => sum + c.rating, 0);
   return Math.round(total / categories.length);
 }
+
+// lib/hostaway.ts
+export async function getReviewsBySlug(slug: string) {
+  const res = await fetch('http://localhost:3000/api/reviews/hostaway');
+  const data = await res.json();
+
+  // Filter reviews for this property
+  return data.result.filter((r: any) => r.listingSlug === slug);
+}
