@@ -8,12 +8,12 @@ export type ReviewCategory = {
 
 export type Review = {
   id: number;
-  type?: string; // خليها اختيارية
-  status?: string; // اختيارية
+  type: string;
+  status: string;
   rating: number | null;
   publicReview: string;
-  reviewCategory?: ReviewCategory[]; // اختيارية
-  submittedAt?: string; // اختيارية
+  reviewCategory: ReviewCategory[];
+  submittedAt: string;
   guestName: string;
   listingName: string;
   listingSlug: string;
@@ -29,14 +29,20 @@ export async function getMockReviews(): Promise<Review[]> {
     id: review.id ?? index + 1,
     type: review.type ?? "guest",
     status: review.status ?? "approved",
-    rating: review.rating ?? (review.reviewCategory ? calculateAverageRating(review.reviewCategory) : null),
+    rating:
+      review.rating ??
+      (review.reviewCategory
+        ? calculateAverageRating(review.reviewCategory)
+        : null),
     publicReview: review.publicReview ?? "",
     reviewCategory: review.reviewCategory ?? [],
-    submittedAt: review.submittedAt ? new Date(review.submittedAt).toISOString() : new Date().toISOString(),
+    submittedAt: review.submittedAt
+      ? new Date(review.submittedAt).toISOString()
+      : new Date().toISOString(),
     guestName: review.guestName ?? "Unknown Guest",
     listingName: review.listingName ?? "Unknown Listing",
     listingSlug: review.listingSlug ?? "unknown-listing",
-    channel: review.channel ?? "Other"
+    channel: review.channel ?? "Other",
   }));
 }
 
@@ -46,11 +52,12 @@ function calculateAverageRating(categories: ReviewCategory[]): number {
   return Math.round(total / categories.length);
 }
 
-// lib/hostaway.ts
-export async function getReviewsBySlug(slug: string) {
-  const res = await fetch('http://localhost:3000/api/reviews/hostaway');
+export async function getReviewsBySlug(slug: string): Promise<Review[]> {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/reviews/hostaway`
+  );
   const data = await res.json();
 
-  // Filter reviews for this property
-  return data.result.filter((r: any) => r.listingSlug === slug);
+  const reviews: Review[] = data.result;
+  return reviews.filter((r) => r.listingSlug === slug);
 }
